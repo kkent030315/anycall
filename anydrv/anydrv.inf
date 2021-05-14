@@ -1,0 +1,23 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class=System
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider=CPOC
+DriverVer=0
+CatalogFile=anydrv.cat
+PnpLockDown=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+
+
+[Strings]
+ManufacturerName="GodEye"
+ClassName=""
+DiskName="anydrv"
