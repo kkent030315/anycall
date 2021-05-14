@@ -174,6 +174,19 @@ namespace syscall
 			start_pa, end_pa );
 
 		const auto pa_size = start_pa + end_pa;
+		
+		const auto iterator = [ & ]( uint64_t base, size_t size = NULL ) {
+			if ( !size )
+				size = MB( 2 );
+
+			for ( auto current_page = base;
+				current_page < base + size;
+				current_page += PAGE_SIZE )
+				if ( probe_for_hook( current_page ) )
+					return true;
+
+			return false;
+		};
 
 		if ( pa_size <= MB( 2 ) )
 		{
@@ -186,64 +199,49 @@ namespace syscall
 				return false;
 			}
 
-			for ( auto current_page = mapped_va;
-				current_page < mapped_va + end_pa;
-				current_page += PAGE_SIZE )
-			{
-				if ( probe_for_hook( current_page ) )
-					return true;
-			}
+			if ( iterator( mapped_va, end_pa ) )
+				return true;
 
 			driver::unmap_physical_memory( mapped_va, end_pa );
+			return false;
 		}
-		else
+		
+
+		const auto modulus = pa_size % MB( 2 );
+
+		for ( auto part = start_pa;
+			part < pa_size;
+			part += MB( 2 ) )
 		{
-			const auto times = pa_size % MB( 2 );
-
-			for ( auto part = start_pa;
-				  part < pa_size;
-				  part += MB( 2 ) )
-			{
-				const uint64_t mapped_va = driver::map_physical_memory(
-					part + page_offset, MB( 2 ) );
-
-				if ( !mapped_va )
-				{
-					LOG( "[!] failed to map physical memory\n" );
-					continue;
-				}
-
-				for ( auto current_page = mapped_va;
-					current_page < mapped_va + MB( 2 );
-					current_page += PAGE_SIZE )
-				{
-					if ( probe_for_hook( current_page ) )
-						return true;
-				}
-
-				driver::unmap_physical_memory( mapped_va, MB( 2 ) );
-			}
-
-			const uint64_t mapped_va = 
-				driver::map_physical_memory( pa_size - times + page_offset, times );
+			const uint64_t mapped_va = driver::map_physical_memory(
+				part + page_offset, MB( 2 ) );
 
 			if ( !mapped_va )
 			{
 				LOG( "[!] failed to map physical memory\n" );
-				return false;
+				continue;
 			}
 
-			for ( auto current_page = mapped_va;
-				current_page < mapped_va + times;
-				current_page += PAGE_SIZE )
-			{
-				if ( probe_for_hook( current_page ) )
-					return true;
-			}
+			if ( iterator( mapped_va, MB( 2 ) ) )
+				return true;
 
-			driver::unmap_physical_memory( mapped_va, times );
+			driver::unmap_physical_memory( mapped_va, MB( 2 ) );
 		}
 
+		const uint64_t mapped_va =
+			driver::map_physical_memory(
+				pa_size - modulus + page_offset, modulus );
+
+		if ( !mapped_va )
+		{
+			LOG( "[!] failed to map physical memory\n" );
+			return false;
+		}
+
+		if ( iterator( mapped_va, modulus ) )
+			return true;
+
+		driver::unmap_physical_memory( mapped_va, modulus );
 		return false;
 	}
 
