@@ -51,8 +51,8 @@ namespace hook
 	//
 	inline const uint8_t shellcode[12] = {
 		0x48, 0xb8,                              // mov rax, 0xaddress ; set detour address to rax
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // 0xaddress ; detour function address
-		0xff, 0xe0 };                            // jmp rax ; jmp to detour function
+		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // 0xaddress          ; detour function address
+		0xff, 0xe0 };                            // jmp rax            ; jmp to detour function
 
 	//
 	// wrapper for memcpy in order to copy into read-only memory
