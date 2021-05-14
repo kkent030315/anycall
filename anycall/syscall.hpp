@@ -382,6 +382,9 @@ namespace syscall
 		{
 			if ( scan_for_range( pa_range.start_pa, pa_range.end_pa ) )
 			{
+				//
+				// physical address of the syscall::function va
+				//
 				PHYSICAL_ADDRESS physical_address =
 					syscall::invoke< MmGetPhysicalAddress >( 
 						( void* )helper::find_ntoskrnl_export( "MmGetPhysicalAddress" ),
