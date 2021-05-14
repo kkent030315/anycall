@@ -27,6 +27,8 @@
 #pragma once
 #include <windows.h>
 #include <cstdint>
+#include <vector>
+#include <mutex>
 
 #include "logger.hpp"
 #include "io.hpp"
@@ -44,8 +46,17 @@ typedef struct _AC_UNMAP_VIRTUAL_MEMORY_REQUEST
 	size_t size;
 } AC_UNMAP_VIRTUAL_MEMORY_REQUEST, * PAC_UNMAP_VIRTUAL_MEMORY_REQUEST;
 
+typedef struct _MAPPED_VA_INFORMATION
+{
+	uint64_t virtual_address;
+	size_t size;
+} MAPPED_VA_INFORMATION, * PMAPPED_VA_INFORMATION;
+
 namespace driver
 {
+	//
+	// map arbitrary physical memory to our process virtual memory
+	//
 	uint64_t map_physical_memory( uint64_t physical_address, size_t size )
 	{
 		uint64_t mapped_va = 0;
@@ -65,9 +76,15 @@ namespace driver
 		return mapped_va;
 	}
 
-	void unmap_physical_memory( uint64_t virtual_address, size_t size )
+	//
+	// unmap mapped virtual memory
+	// size is not actually required to process on driver side
+	//
+	void unmap_physical_memory( 
+		uint64_t virtual_address, size_t size,
+		const bool should_erase = true )
 	{
-		uint64_t fake = 0;
+		uint64_t fake = 0; // unused
 
 		AC_UNMAP_VIRTUAL_MEMORY_REQUEST request;
 		request.virtual_address = virtual_address;

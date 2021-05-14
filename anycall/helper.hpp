@@ -308,8 +308,7 @@ namespace helper
 	}
 
 	SYSMODULE_RESULT find_sysmodule_address(
-		const std::string_view target_module_name,
-		bool debug_prints = false )
+		const std::string_view target_module_name )
 	{
 		const HMODULE module_handle = GetModuleHandle( TEXT( "ntdll.dll" ) );
 
@@ -373,8 +372,6 @@ namespace helper
 
 		PSYSTEM_MODULE_INFORMATION module_information = ( PSYSTEM_MODULE_INFORMATION )buffer;
 
-		LOG( "[>] looking for %s in sysmodules...\n", target_module_name.data() );
-
 		for ( ULONG i = 0; i < module_information->Count; i++ )
 		{
 			SYSTEM_MODULE_INFORMATION_ENTRY module_entry = module_information->Modules[ i ];
@@ -386,11 +383,6 @@ namespace helper
 			}
 
 			PCHAR module_name = module_entry.ImageName + module_entry.ModuleNameOffset;
-
-			if ( debug_prints )
-			{
-				LOG( "[+] sysmodule: %025s @ 0x%llX\n", module_name, module_address );
-			}
 
 			if ( target_module_name.compare( module_name ) == 0 )
 			{
@@ -410,7 +402,8 @@ namespace helper
 	{
 		if ( !ntoskrnl_cache.base_address )
 		{
-			SYSMODULE_RESULT ntoskrnl = find_sysmodule_address( "ntoskrnl.exe" );
+			SYSMODULE_RESULT ntoskrnl = 
+				find_sysmodule_address( "ntoskrnl.exe" );
 
 			if ( !ntoskrnl.base_address )
 			{
@@ -420,16 +413,17 @@ namespace helper
 				return NULL;
 			}
 
-			LOG( "[+] ntoskrnl.exe (%s) is at 0x%llX\n",
-				ntoskrnl.image_full_path.c_str(), ntoskrnl.base_address );
-
 			ntoskrnl_cache = ntoskrnl;
 		}
 
+		//
+		// find target function from EAT
+		//
 		const auto export_address = find_export(
 			ntoskrnl_cache.image_full_path, export_name );
 
 		return as_rva ?
-			export_address : ntoskrnl_cache.base_address + export_address;
+			export_address : 
+			ntoskrnl_cache.base_address + export_address;
 	}
 } // namespace helper

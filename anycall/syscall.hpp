@@ -62,6 +62,9 @@ using PsGetProcessSectionBaseAddress = PVOID( __fastcall* )(
 
 using PsGetCurrentProcessId = HANDLE( __fastcall* )( void );
 
+using MmGetPhysicalAddress = PHYSICAL_ADDRESS( __fastcall* )(
+	PVOID BaseAddress );
+
 namespace syscall
 {
 	//
@@ -124,11 +127,10 @@ namespace syscall
 		DWORD pid_from_hooked_syscall = 0;
 
 		//
-		// wow, PsGetCurrentProcessId returns this user process's pid
+		// wow, PsGetCurrentProcessId returns this user process's pid,
 		// if the syscall-hook is succeeded
 		//
-		pid_from_hooked_syscall = ( DWORD )syscall::invoke<PsGetCurrentProcessId>(
-			( void* )helper::find_ntoskrnl_export( "PsGetCurrentProcessId" ) );
+		pid_from_hooked_syscall = ( DWORD )SYSCALL( PsGetCurrentProcessId );
 
 		const bool is_syscall_ok = 
 			pid_from_hooked_syscall == GetCurrentProcessId();
@@ -156,8 +158,8 @@ namespace syscall
 			syscall::function = reinterpret_cast< void* >( mapped_va );
 
 			LOG( " ---> compare\n" );
-			helper::print_hex( "   ---> ", ( void* )mapped_va, STUB_SCAN_LENGTH );
-			helper::print_hex( "   ---> ", ( void* )stub, STUB_SCAN_LENGTH );
+			helper::print_hex( " [CANDIDATE] ", ( void* )mapped_va, STUB_SCAN_LENGTH );
+			helper::print_hex( " [FUNC STUB] ", ( void* )stub, STUB_SCAN_LENGTH );
 
 			//
 			// validate by try hook and call
@@ -175,15 +177,30 @@ namespace syscall
 
 		const auto pa_size = start_pa + end_pa;
 		
-		const auto iterator = [ & ]( uint64_t base, size_t size = NULL ) {
+		const auto iterator = [ & ]( uint64_t base, size_t size = NULL )
+		{
 			if ( !size )
 				size = MB( 2 );
+
+			// just for logging
+			uint32_t counter = 0;
 
 			for ( auto current_page = base;
 				current_page < base + size;
 				current_page += PAGE_SIZE )
+			{
+				counter++;
+
+				//
+				// probe this page
+				//
 				if ( probe_for_hook( current_page ) )
+				{
+					LOG( "[+] hook function found in range [0x%llX -> 0x%llX] and page %d\n",
+						start_pa, end_pa, counter );
 					return true;
+				}
+			}
 
 			return false;
 		};
@@ -206,7 +223,9 @@ namespace syscall
 			return false;
 		}
 		
-
+		//
+		// big page
+		//
 		const auto modulus = pa_size % MB( 2 );
 
 		for ( auto part = start_pa;
@@ -256,14 +275,14 @@ namespace syscall
 		if ( syscall::found )
 			return false;
 
-		std::vector< PHYSICAL_ADDRESS_RANGE > range_list;
+		std::vector< PHYSICAL_ADDRESS_RANGE > pa_range_list;
 
 		//
 		// fetch physical memory ranges from registry
 		//
-		helper::query_physical_memory_ranges( range_list );
+		helper::query_physical_memory_ranges( pa_range_list );
 
-		if ( range_list.size() <= 0 )
+		if ( pa_range_list.size() <= 0 )
 		{
 			LOG( "[!] failed to fetch physical memory ranges\n" );
 			LOG_ERROR();
@@ -325,7 +344,7 @@ namespace syscall
 			ntoskrnl.base_address, our_ntoskrnl );
 
 		//
-		// rva and page offset to the kernel-side function of desired syscall-hook
+		// rva and page offset to the desired syscall function
 		//
 		const auto hook_function_rva =
 			helper::find_ntoskrnl_export( hook_function_name, true /* as rva */ );
@@ -354,16 +373,24 @@ namespace syscall
 
 		FreeLibrary( (HMODULE)our_ntoskrnl );
 
-		helper::print_hex( "[+] stub: ", (void*)stub, STUB_SCAN_LENGTH );
+		helper::print_hex( "[+] function stub: ", (void*)stub, STUB_SCAN_LENGTH );
 
 		//
 		// scan for every single physical memory ranges
 		//
-		for ( auto range : range_list )
+		for ( auto pa_range : pa_range_list )
 		{
-			if ( scan_for_range( range.start_pa, range.end_pa ) )
+			if ( scan_for_range( pa_range.start_pa, pa_range.end_pa ) )
 			{
-				LOG( "[+] syscall found!\n" );
+				PHYSICAL_ADDRESS physical_address =
+					syscall::invoke<MmGetPhysicalAddress>(
+						( void* )helper::find_ntoskrnl_export( "MmGetPhysicalAddress" ),
+						syscall::function );
+
+				LOG( "[+] %s found at VA:0x%llX PA:0x%llX\n",
+					hook_function_name.data(),
+					syscall::function, physical_address.QuadPart );
+
 				syscall::found = true;
 				break;
 			}

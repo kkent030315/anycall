@@ -141,8 +141,8 @@ namespace hook
 		// stupid way
 		//
 		for ( auto entry = hooked_functions.begin();
-			  entry != hooked_functions.end();
-			  entry++ )
+			entry != hooked_functions.end();
+			entry++ )
 		{
 			if ( entry->source == source )
 			{
