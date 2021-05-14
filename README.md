@@ -19,6 +19,6 @@ x64 Windows kernel code execution in user-mode, arbitrary syscall, vulnerable IO
 4. `syscall` it
 5. wow, we are `user-mode` but able to call kernel APIs
 
-# License]
+# License
 
 MIT
