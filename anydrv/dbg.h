@@ -37,8 +37,8 @@
 #define AC_ENABLE_DEBUG 0
 
 #if AC_ENABLE_DEBUG
-#define AC_KDPRINT(format, ...) \
-	DbgPrint(format, __VA_ARGS__);
+#define AC_KDPRINT( format, ... ) \
+	DbgPrint( format, __VA_ARGS__ );
 #else
 #define AC_KDPRINT 
 #endif

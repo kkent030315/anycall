@@ -44,14 +44,11 @@ AcDeviceControl
     PIRP Irp
 )
 {
-    PIO_STACK_LOCATION  irpSp;          // current stack location
     NTSTATUS            ntStatus = STATUS_SUCCESS;
+    PIO_STACK_LOCATION  irpSp;          // current stack location
     ULONG               inBufLength;    // length of input buffer
     ULONG               outBufLength;   // length of output buffer
-    PCHAR               inBuf = NULL, outBuf = NULL;  // pointer to Input and output buffer
-
-    PMDL                mdl = NULL;
-    PCHAR               buffer = NULL;
+    PCHAR               inBuf = NULL, outBuf = NULL; // pointer to Input and output buffer
 
     UNREFERENCED_PARAMETER( DeviceObject );
 
@@ -82,7 +79,8 @@ AcDeviceControl
         inBuf = Irp->AssociatedIrp.SystemBuffer;
         outBuf = Irp->AssociatedIrp.SystemBuffer;
 
-        PAC_MAP_PHYSICAL_MEMORY_REQUEST request = ( PAC_MAP_PHYSICAL_MEMORY_REQUEST )inBuf;
+        PAC_MAP_PHYSICAL_MEMORY_REQUEST request = 
+            ( PAC_MAP_PHYSICAL_MEMORY_REQUEST )inBuf;
 
         AcMapPhysicalMemoryForUser(
             ( UINT_PTR* )outBuf,        // result mapped va
@@ -106,9 +104,12 @@ AcDeviceControl
         inBuf = Irp->AssociatedIrp.SystemBuffer;
         outBuf = Irp->AssociatedIrp.SystemBuffer;
 
-        PAC_UNMAP_VIRTUAL_MEMORY_REQUEST request = ( PAC_UNMAP_VIRTUAL_MEMORY_REQUEST )inBuf;
+        PAC_UNMAP_VIRTUAL_MEMORY_REQUEST request = 
+            ( PAC_UNMAP_VIRTUAL_MEMORY_REQUEST )inBuf;
 
-        ntStatus = AcUnmapMappedPhysicalMemoryForUser( request->VirtualAddress, request->Size );
+        ntStatus = AcUnmapMappedPhysicalMemoryForUser( 
+            request->VirtualAddress, 
+            request->Size );
 
         Irp->IoStatus.Information = NT_SUCCESS( ntStatus );
 
@@ -118,8 +119,10 @@ AcDeviceControl
     {
         ntStatus = STATUS_INVALID_DEVICE_REQUEST;
 
-        AC_KDPRINT( "ERROR: unknown IOCTL code specified 0x%x\n",
+        AC_KDPRINT( "ERROR: unknown IOCTL code specified: 0x%x\n",
             irpSp->Parameters.DeviceIoControl.IoControlCode );
+
+        Irp->IoStatus.Information = 0;
 
         break;
     }
@@ -190,7 +193,7 @@ NTSTATUS DispatchDriverEntry
     DriverObject->MajorFunction[ IRP_MJ_CREATE ]            = AcCreateClose;
     DriverObject->MajorFunction[ IRP_MJ_CLOSE ]             = AcCreateClose;
     DriverObject->MajorFunction[ IRP_MJ_DEVICE_CONTROL ]    = AcDeviceControl;
-    DriverObject->DriverUnload = AcUnloadDriver;
+    DriverObject->DriverUnload                              = AcUnloadDriver;
 
     RtlInitUnicodeString( &dosDeviceNameUs, AC_DOS_DEVICE_NAME );
 
@@ -199,6 +202,8 @@ NTSTATUS DispatchDriverEntry
     if ( !NT_SUCCESS( ntStatus ) )
     {
         AC_KDPRINT( "Failed to create symbolic link\n" );
+        AC_KDPRINT( " ---> NTSTATUS: 0x%lX\n", ntStatus );
+
         IoDeleteDevice( deviceObject );
     }
 
