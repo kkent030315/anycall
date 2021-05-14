@@ -39,7 +39,7 @@ AcMapPhysicalMemoryForUser
 	OBJECT_ATTRIBUTES ObjectAttributes;
 	HANDLE SectionHandle;
 	PVOID Object;
-	ULONG IsIOSpace;
+	ULONG BusAddressSpace;
 	PHYSICAL_ADDRESS PhysicalAddressStart;
 	PHYSICAL_ADDRESS PhysicalAddressEnd;
 	PHYSICAL_ADDRESS ViewBase;
@@ -52,7 +52,7 @@ AcMapPhysicalMemoryForUser
 	AC_KDPRINT( " ---> Size            : 0x%lX\n", Size );
 
 	//
-	// zero buffer is our responsibility in anycall interface architecture
+	// zero buffer is our responsibility
 	//
 	*VirtualAddress = 0;
 
@@ -67,17 +67,19 @@ AcMapPhysicalMemoryForUser
 		( HANDLE )NULL,
 		( PSECURITY_DESCRIPTOR )NULL );
 
+	//
+	// open section handle
+	//
 	ntStatus = ZwOpenSection(
 		&SectionHandle, SECTION_ALL_ACCESS, &ObjectAttributes );
 
 	if ( !NT_SUCCESS( ntStatus ) )
 	{
-		AC_KDPRINT( "ERROR: failed to open section with ZwOpenSection (0x%lX)",
-			ntStatus );
+		AC_KDPRINT( "ERROR: ZwOpenSection Failed\n" );
+		AC_KDPRINT( " ---> NTSTATUS: 0x%lX\n", ntStatus );
+
 		return ntStatus;
 	}
-
-	AC_KDPRINT( "Section Handle Opened 0x%p\n", SectionHandle );
 
 	ntStatus = ObReferenceObjectByHandle( 
 		SectionHandle,
@@ -89,7 +91,9 @@ AcMapPhysicalMemoryForUser
 
 	if ( !NT_SUCCESS( ntStatus ) )
 	{
-		AC_KDPRINT( "ERROR: failed to reference object by handle with ObReferenceObjectByHandle" );
+		AC_KDPRINT( "ERROR: ObReferenceObjectByHandle Failed\n" );
+		AC_KDPRINT( " ---> NTSTATUS: 0x%lX\n", ntStatus );
+
 		ZwClose( SectionHandle );
 		return ntStatus;
 	}
@@ -97,23 +101,23 @@ AcMapPhysicalMemoryForUser
 	PhysicalAddressStart.QuadPart = ( ULONGLONG )( ULONG_PTR )PhysicalAddress;
 	PhysicalAddressEnd.QuadPart = PhysicalAddressStart.QuadPart + Size;
 
-	IsIOSpace = 0;
+	BusAddressSpace = 0;
 	HalTranslateResult1 = 
-		HalTranslateBusAddress( 0, 0, PhysicalAddressStart, &IsIOSpace, &PhysicalAddressStart );
+		HalTranslateBusAddress( 0, 0, PhysicalAddressStart, &BusAddressSpace, &PhysicalAddressStart );
 
-	IsIOSpace = 0;
+	BusAddressSpace = 0;
 	HalTranslateResult2 = 
-		HalTranslateBusAddress( 0, 0, PhysicalAddressEnd, &IsIOSpace, &PhysicalAddressEnd );
+		HalTranslateBusAddress( 0, 0, PhysicalAddressEnd, &BusAddressSpace, &PhysicalAddressEnd );
 
 	if ( !HalTranslateResult1 || !HalTranslateResult2 )
 	{
 		AC_KDPRINT( "ERROR: HalTranslateBusAddress Failed\n" );
+
 		ZwClose( SectionHandle );
 		return STATUS_UNSUCCESSFUL;
 	}
 
 	Size = ( SIZE_T )PhysicalAddressEnd.QuadPart - ( SIZE_T )PhysicalAddressStart.QuadPart;
-
 	ViewBase = PhysicalAddressStart;
 
 	ntStatus = ZwMapViewOfSection(
@@ -131,6 +135,8 @@ AcMapPhysicalMemoryForUser
 	if ( !NT_SUCCESS( ntStatus ) )
 	{
 		AC_KDPRINT( "ERROR: ZwMapViewOfSection Failed (0x%lX)\n", ntStatus );
+		AC_KDPRINT( " ---> NTSTATUS: 0x%lX\n", ntStatus );
+
 		ZwClose( SectionHandle );
 		return ntStatus;
 	}
@@ -138,11 +144,11 @@ AcMapPhysicalMemoryForUser
 	pBaseAddress += PhysicalAddressStart.QuadPart - ViewBase.QuadPart;
 	*VirtualAddress = pBaseAddress;
 
-	AC_KDPRINT( "SUCCESS: physical memory 0x%llX mapped to virtual memory 0x%llX\n",
-		PhysicalAddress, *VirtualAddress );
+	AC_KDPRINT( "SUCCESS: Physical memory [0x%llX -> 0x%llX] mapped to virtual memory [0x%llX -> 0x%llX]\n",
+		PhysicalAddress, PhysicalAddress + Size,
+		*VirtualAddress, *VirtualAddress + Size );
 
 	ZwClose( SectionHandle );
-
 	return ntStatus;
 }
 
@@ -161,9 +167,17 @@ NTSTATUS AcUnmapMappedPhysicalMemoryForUser(
 
 	if ( !NT_SUCCESS( ntStatus ) )
 	{
-		AC_KDPRINT( "ERROR: ZwUnmapViewOfSection failed\n" );
+		AC_KDPRINT( "ERROR: ZwUnmapViewOfSection Failed\n" );
+		AC_KDPRINT( " --->        NTSTATUS: 0x%lX\n", ntStatus );
+		AC_KDPRINT( " ---> Virtual Address: 0x%llX\n", VirtualAddress );
+		AC_KDPRINT( " --->            Size: 0x%lX\n", Size );
+
 		return ntStatus;
 	}
+
+	AC_KDPRINT( "SUCCESS: Virtual Address [0x%llX -> 0x%llX] is now unmapped\n",
+		VirtualAddress,
+		VirtualAddress + Size );
 
 	return ntStatus;
 }
