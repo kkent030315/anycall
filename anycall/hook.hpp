@@ -62,12 +62,14 @@ namespace hook
 		DWORD old_protection;
 
 		// make it rwx
-		VirtualProtect( ( LPVOID )dst, size, PAGE_EXECUTE_READWRITE, &old_protection );
+		if ( !VirtualProtect( ( LPVOID )dst, size, PAGE_EXECUTE_READWRITE, &old_protection ) )
+			return;
 
 		memcpy( dst, src, size );
 
 		// restore memory protection
-		VirtualProtect( ( LPVOID )dst, size, old_protection, NULL );
+		if ( !VirtualProtect( ( LPVOID )dst, size, old_protection, NULL ) )
+			return;
 	}
 
 	//
