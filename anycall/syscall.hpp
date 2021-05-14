@@ -105,7 +105,7 @@ namespace syscall
 		// `hook_function` is not actually hooked, but
 		// hooked in ntoskrnl.exe internal
 		//
-		const auto result = 
+		const auto invoke_result = 
 			reinterpret_cast< FnType >( hook_function )( augments ... );
 
 		//
@@ -113,7 +113,7 @@ namespace syscall
 		//
 		hook::unhook( syscall::function, true );
 
-		return result;
+		return invoke_result;
 	}
 
 	//
