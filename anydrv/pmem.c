@@ -61,11 +61,6 @@ AcMapPhysicalMemoryForUser
 
 	RtlInitUnicodeString( &ObjectNameUs, L"\\Device\\PhysicalMemory" );
 
-	/*objectAttributes.RootDirectory = 0i64;
-	objectAttributes.ObjectName = &objectNameUs;
-	objectAttributes.Length = 48;
-	objectAttributes.Attributes = 64;*/
-
 	InitializeObjectAttributes( &ObjectAttributes,
 		&ObjectNameUs,
 		OBJ_CASE_INSENSITIVE,
@@ -83,9 +78,6 @@ AcMapPhysicalMemoryForUser
 	}
 
 	AC_KDPRINT( "Section Handle Opened 0x%p\n", SectionHandle );
-
-	/*ntStatus = ObReferenceObjectByHandle(
-		SectionHandle, 0xF001Fu, 0i64, 0, &Object, 0i64 );*/
 
 	ntStatus = ObReferenceObjectByHandle( 
 		SectionHandle,
