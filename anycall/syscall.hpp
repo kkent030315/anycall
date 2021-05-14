@@ -98,7 +98,7 @@ namespace syscall
 		//
 		// inline-hook against desired arbitrary syscall
 		//
-		hook::hook( syscall::function, detour );
+		hook::hook( syscall::function, detour, true );
 
 		//
 		// issue syscall
@@ -111,7 +111,7 @@ namespace syscall
 		//
 		// unhook immediately
 		//
-		hook::unhook( syscall::function );
+		hook::unhook( syscall::function, true );
 
 		return result;
 	}

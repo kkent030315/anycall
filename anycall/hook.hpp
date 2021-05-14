@@ -49,7 +49,7 @@ namespace hook
 	// x64 inline hook shellcode
 	// http://sandsprite.com/blogs/index.php?uid=7&pid=235&year=2012
 	//
-	inline const uint8_t shellcode[12] = {
+	inline constexpr uint8_t shellcode[12] = {
 		0x48, 0xb8,                              // mov rax, 0xaddress ; set detour address to rax
 		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // 0xaddress          ; detour function address
 		0xff, 0xe0 };                            // jmp rax            ; jmp to detour function
