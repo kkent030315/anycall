@@ -371,7 +371,7 @@ namespace syscall
 			( void* )( our_ntoskrnl + hook_function_rva ),
 			STUB_SCAN_LENGTH );
 
-		FreeLibrary( (HMODULE)our_ntoskrnl );
+		FreeLibrary( ( HMODULE )our_ntoskrnl );
 
 		helper::print_hex( "[+] function stub: ", (void*)stub, STUB_SCAN_LENGTH );
 
@@ -383,7 +383,7 @@ namespace syscall
 			if ( scan_for_range( pa_range.start_pa, pa_range.end_pa ) )
 			{
 				PHYSICAL_ADDRESS physical_address =
-					syscall::invoke<MmGetPhysicalAddress>(
+					syscall::invoke< MmGetPhysicalAddress >( 
 						( void* )helper::find_ntoskrnl_export( "MmGetPhysicalAddress" ),
 						syscall::function );
 
