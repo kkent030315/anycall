@@ -404,4 +404,4 @@ namespace syscall
 
 		return true;
 	}
-}
+} // namespace syscall
