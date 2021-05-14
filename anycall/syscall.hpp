@@ -177,6 +177,9 @@ namespace syscall
 
 		const auto pa_size = start_pa + end_pa;
 		
+		//
+		// lazy lambda definition
+		//
 		const auto iterator = [ & ]( uint64_t base, size_t size = NULL )
 		{
 			if ( !size )
