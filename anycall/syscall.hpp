@@ -329,7 +329,7 @@ namespace syscall
 		//
 		uint8_t* our_ntoskrnl;
 
-		our_ntoskrnl = reinterpret_cast< std::uint8_t* >(
+		our_ntoskrnl = reinterpret_cast< uint8_t* >(
 			LoadLibraryA( ntoskrnl_full_path.c_str() ) );
 
 		if ( !our_ntoskrnl )
