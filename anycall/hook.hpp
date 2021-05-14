@@ -78,7 +78,7 @@ namespace hook
 	bool hook( 
 		void* source,           // function to hook
 		void* detour,           // detour function
-		bool writable = false)  // in order to prevent useless VirtualProtect calls
+		bool writable = false ) // in order to prevent useless VirtualProtect calls
 	{
 		std::vector<uint8_t> shell( sizeof( shellcode ) );
 		std::vector<uint8_t> original( sizeof( shellcode ) );
@@ -128,7 +128,7 @@ namespace hook
 	// one that matches address, this will cause
 	// performance issue if we have a lots of entries.
 	//
-	bool unhook( void* source )
+	bool unhook( void* source, const bool writable = false )
 	{
 		// no entries
 		if ( hooked_functions.size() <= 0 )
@@ -149,10 +149,20 @@ namespace hook
 				//
 				// restore original bytes
 				//
-				copy_memory(
-					entry->source,
-					&entry->original_bytes[ 0 ],
-					sizeof( shellcode ) );
+				if ( writable )
+				{
+					memcpy(
+						entry->source,
+						&entry->original_bytes[ 0 ],
+						sizeof( shellcode ) );
+				}
+				else
+				{
+					copy_memory(
+						entry->source,
+						&entry->original_bytes[ 0 ],
+						sizeof( shellcode ) );
+				}
 
 				hooked_functions.erase( entry );
 				return true;
