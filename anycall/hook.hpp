@@ -76,9 +76,9 @@ namespace hook
 	// fast and simple inline-hook
 	//
 	bool hook( 
-		void* source,			// function to hook
-		void* detour,			// detour function
-		bool writable = false)	// in order to prevent useless VirtualProtect calls
+		void* source,           // function to hook
+		void* detour,           // detour function
+		bool writable = false)  // in order to prevent useless VirtualProtect calls
 	{
 		std::vector<uint8_t> shell( sizeof( shellcode ) );
 		std::vector<uint8_t> original( sizeof( shellcode ) );
