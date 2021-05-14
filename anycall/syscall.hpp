@@ -275,11 +275,10 @@ namespace syscall
 		if ( syscall::found )
 			return false;
 
-		std::vector< PHYSICAL_ADDRESS_RANGE > pa_range_list;
-
 		//
 		// fetch physical memory ranges from registry
 		//
+		std::vector< PHYSICAL_ADDRESS_RANGE > pa_range_list;
 		helper::query_physical_memory_ranges( pa_range_list );
 
 		if ( pa_range_list.size() <= 0 )
