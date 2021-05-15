@@ -2,6 +2,9 @@
 <img src="image.png">
 
 <img src="https://img.shields.io/github/workflow/status/kkent030315/anycall/MSBuild?style=for-the-badge">
+<img src="https://img.shields.io/github/v/release/kkent030315/anycall?style=for-the-badge">
+<img src="https://img.shields.io/github/license/kkent030315/anycall?style=for-the-badge">
+<img src="https://img.shields.io/badge/platform-win--64-skyblue?style=for-the-badge">
 </p>
 
 # anycall
