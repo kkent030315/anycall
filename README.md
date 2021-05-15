@@ -10,7 +10,7 @@
 
 # anycall
 
-x64 Windows kernel code execution in user-mode, arbitrary syscall, vulnerable IOCTLs demonstration
+x64 Windows kernel code execution via user-mode, arbitrary syscall, vulnerable IOCTLs demonstration
 
 Read: https://www.godeye.club/2021/05/14/001-x64-windows-kernel-code-execution-via-user.html
 
