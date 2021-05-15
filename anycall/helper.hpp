@@ -51,6 +51,26 @@ namespace helper
 {
 	inline SYSMODULE_RESULT ntoskrnl_cache;
 
+	uint16_t find_syscall_number( 
+		const std::string_view module_name, 
+		const std::string_view procedure_name )
+	{
+		const auto procedure = 
+			GetProcAddress( 
+				GetModuleHandle( module_name.data() ), 
+				procedure_name.data() );
+
+		if ( !procedure )
+			return NULL;
+
+		//
+		// for NtTraceControl, the syscall number is 0x1C3
+		// 0x4C 0x8B 0xD1 0xB8 0xC3 0x01 0x00 0x00 0xF6 0x04 0x25
+		// >                   ^^^^^^^^^
+		//
+		return *( uint16_t* )( ( uint64_t )procedure + 0x4 );
+	}
+
 	//
 	// print hex
 	// for example: 0x00 0x00 0x00 0x00 0x00 ... 

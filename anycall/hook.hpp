@@ -57,19 +57,21 @@ namespace hook
 	//
 	// wrapper for memcpy in order to copy into read-only memory
 	//
-	void copy_memory( void* dst, void* src, size_t size )
+	bool copy_memory( void* dst, void* src, size_t size )
 	{
 		DWORD old_protection;
 
 		// make it rwx
 		if ( !VirtualProtect( ( LPVOID )dst, size, PAGE_EXECUTE_READWRITE, &old_protection ) )
-			return;
+			return false;
 
 		memcpy( dst, src, size );
 
 		// restore memory protection
-		if ( !VirtualProtect( ( LPVOID )dst, size, old_protection, NULL ) )
-			return;
+		if ( !VirtualProtect( ( LPVOID )dst, size, old_protection, &old_protection ) )
+			return false;
+
+		return true;
 	}
 
 	//

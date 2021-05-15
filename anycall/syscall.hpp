@@ -65,6 +65,25 @@ using PsGetCurrentProcessId = HANDLE( __fastcall* )( void );
 using MmGetPhysicalAddress = PHYSICAL_ADDRESS( __fastcall* )(
 	PVOID BaseAddress );
 
+//
+// our syscall handler built by assembly
+// syscall number is at offset 0x4 and
+// will be set by syscall::setup
+// only supports x64
+//
+// 0x4C 0x8B 0xD1 0xB8 0xFF 0xFF 0x00 0x00 0x0F 0x05 0xC3
+//                     ^^^^^^^^^
+//
+// 0:  4c 8b d1                mov    r10, rcx
+// 3:  b8 ff ff 00 00          mov    eax, 0xffff ; syscall number
+// 8:  0f 05                   syscall
+// a:  c3                      ret
+//
+// syscall_handler --> KiSystemCall64 -->  [hooked internal syscall] --> [detour]
+// |      USER      |                          KERNEL                           |
+//
+extern "C" void* syscall_handler();
+
 namespace syscall
 {
 	//
@@ -72,13 +91,6 @@ namespace syscall
 	// that mapped to our user virtual address
 	//
 	inline void* function;
-
-	//
-	// this points to the user-side syscall wrapper function
-	// e.g, NtCreateFile, NtQuerySystemTime in ntdll
-	// this function is not actually hooked or modified
-	//
-	inline void* hook_function;
 
 	//
 	// does certain syscall-hook found?
@@ -94,8 +106,8 @@ namespace syscall
 	//
 	// any kernel code execution - anycall
 	//
-	template <class FnType, class ... Args>
-	std::invoke_result_t<FnType, Args...> invoke(
+	template < class FnType, class ... Args >
+	std::invoke_result_t< FnType, Args... > invoke(
 		void* detour, Args ... augments )
 	{
 		//
@@ -104,12 +116,10 @@ namespace syscall
 		hook::hook( syscall::function, detour, true );
 
 		//
-		// issue syscall
-		// `hook_function` is not actually hooked, but
-		// hooked in ntoskrnl.exe internal
+		// invoke syscall
 		//
-		const auto invoke_result = 
-			reinterpret_cast< FnType >( hook_function )( augments ... );
+		const auto invoke_result =
+			reinterpret_cast< FnType >( syscall_handler )( augments ... );
 
 		//
 		// unhook immediately
@@ -159,7 +169,7 @@ namespace syscall
 
 			LOG( " ---> compare\n" );
 			helper::print_hex( " [CANDIDATE] ", ( void* )mapped_va, STUB_SCAN_LENGTH );
-			helper::print_hex( " [FUNC STUB] ", ( void* )stub, STUB_SCAN_LENGTH );
+			helper::print_hex( "      [STUB] ", ( void* )stub, STUB_SCAN_LENGTH );
 
 			//
 			// validate by try hook and call
@@ -271,8 +281,8 @@ namespace syscall
 	// syscall-hook initialization
 	//
 	bool setup(
-		const std::string_view hook_function_module_name,	// the module name the function contains
-		const std::string_view hook_function_name )			// any desired hook function
+		const std::string_view hook_function_module_name, // module name the function contains
+		const std::string_view hook_function_name )       // any desired hook function
 	{
 		// already initialized
 		if ( syscall::found )
@@ -292,27 +302,37 @@ namespace syscall
 			return false;
 		}
 
-		//
-		// function pointer to the user-side syscall wrappers
-		// this function is not actually hooked
-		//
-		hook_function = ( void* )GetProcAddress(
-			GetModuleHandle( hook_function_module_name.data() ),
-			hook_function_name.data() );
+		LOG( "[+] preparing our syscall handle...\n" );
 
-		if ( !hook_function )
+		//
+		// find syscall number from image
+		//
+		uint16_t syscall_number = 
+			helper::find_syscall_number( 
+				hook_function_module_name, hook_function_name );
+
+		if ( !syscall_number )
 		{
-			LOG( "[!] failed to locate hook %s in %s\n",
-				hook_function_name.data(), hook_function_module_name.data() );
+			LOG( "[!] failed to find syscall number\n" );
 			LOG_ERROR();
 
 			return false;
 		}
 
-		LOG( "[!] hook function found: %s in %s at 0x%p\n",
-			hook_function_name.data(),
-			hook_function_module_name.data(),
-			hook_function );
+		if ( !hook::copy_memory( 
+			(void*)( (uint64_t)syscall_handler + 0x4 ), // our syscall number offset is also 0x4
+			&syscall_number,                     // the syscall number
+			sizeof( uint16_t ) ) )               // size must be 0x2
+		{
+			LOG( "[!] failed to set syscall number\n" );
+			LOG_ERROR();
+
+			return false;
+		}
+
+		LOG( "[+] syscall number for %s (0x%X) is set\n", 
+			hook_function_name.data(), syscall_number );
+		helper::print_hex( "[+] prepared our syscall handler: ", &syscall_handler, 11 );
 
 		const SYSMODULE_RESULT ntoskrnl =
 			helper::find_sysmodule_address( "ntoskrnl.exe" );
