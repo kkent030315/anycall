@@ -1,5 +1,7 @@
 <p align="center">
 <img src="image.png">
+
+<img src="https://img.shields.io/github/workflow/status/kkent030315/anycall/MSBuild?style=for-the-badge">
 </p>
 
 # anycall
