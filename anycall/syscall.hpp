@@ -134,13 +134,13 @@ namespace syscall
 	//
 	bool validate()
 	{
-		DWORD pid_from_hooked_syscall = 0;
+		uint32_t pid_from_hooked_syscall = 0;
 
 		//
 		// wow, PsGetCurrentProcessId returns this user process's pid,
 		// if the syscall-hook is succeeded
 		//
-		pid_from_hooked_syscall = ( DWORD )SYSCALL( PsGetCurrentProcessId );
+		pid_from_hooked_syscall = ( uint32_t )SYSCALL( PsGetCurrentProcessId );
 
 		const bool is_syscall_ok = 
 			pid_from_hooked_syscall == GetCurrentProcessId();

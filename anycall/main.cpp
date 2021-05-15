@@ -77,7 +77,7 @@ int main( const int argc, const char** argv, const char** envp )
     //
     // wow, PsGetCurrentProcessId is kernel function but?
     //
-    DWORD process_id = ( DWORD )SYSCALL( PsGetCurrentProcessId );
+    uint32_t process_id = ( uint32_t )SYSCALL( PsGetCurrentProcessId );
     LOG( "\n[:] PsGetCurrentProcessId: 0x%llX (%d)\n", process_id, process_id );
 
     std::cin.ignore();
