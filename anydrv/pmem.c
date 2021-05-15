@@ -24,6 +24,8 @@
 
 */
 
+#pragma warning( disable : 4047 ) // '=': 'unsigned int' differs in levels of indirection from 'PUCHAR'
+#pragma warning( disable : 4022 ) // 'ZwUnmapViewOfSection': pointer mismatch for actual parameter 2
 #include "pmem.h"
 
 NTSTATUS
