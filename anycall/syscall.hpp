@@ -302,7 +302,7 @@ namespace syscall
 			return false;
 		}
 
-		LOG( "[+] preparing our syscall handle...\n" );
+		LOG( "[+] preparing our syscall handler...\n" );
 
 		//
 		// find syscall number from image
