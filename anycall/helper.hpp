@@ -64,7 +64,7 @@ namespace helper
 		{
 			// hello terrible expression
 			LOG( "0x%02X ", 
-				*( byte* )( ( uint64_t )buffer + ( 0x2 * i ) ) & 0x000000FF );
+				*( byte* )( ( uint64_t )buffer + ( 0x1 * i ) ) & 0x000000FF );
 		}
 
 		LOG( "\n" );
