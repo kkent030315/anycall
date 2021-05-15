@@ -91,24 +91,6 @@ namespace helper
 	}
 
 	//
-	// read file
-	//
-	std::vector<uint8_t> read_file( const char* file_name )
-	{
-		std::streampos fileSize;
-		std::ifstream file( file_name, std::ios::binary );
-
-		file.seekg( 0, std::ios::end );
-		fileSize = file.tellg();
-		file.seekg( 0, std::ios::beg );
-
-		std::vector<uint8_t> fileData( fileSize );
-		file.read( ( char* )&fileData[ 0 ], fileSize );
-
-		return fileData;
-	}
-
-	//
 	// wrapper for `_dupenv_s` since getenv is vulnerable
 	//
 	bool lookup_env( const char* env, std::string* result )
