@@ -10,7 +10,7 @@
 # anycall
 x64 Windows kernel code execution in user-mode, arbitrary syscall, vulnerable IOCTLs demonstration
 
-## How?
+## How it works
 
 <p align="center">
 <img src="how.png">
