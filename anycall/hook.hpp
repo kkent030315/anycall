@@ -133,7 +133,7 @@ namespace hook
 	bool unhook( void* source, const bool writable = false )
 	{
 		// no entries
-		if ( hooked_functions.size() <= 0 )
+		if ( !hooked_functions.size() )
 		{
 			return false;
 		}
