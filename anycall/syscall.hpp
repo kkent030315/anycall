@@ -167,7 +167,7 @@ namespace syscall
 			//
 			syscall::function = reinterpret_cast< void* >( mapped_va );
 
-			LOG( " ---> compare\n" );
+			LOG( " ---> [compare]\n" );
 			helper::print_hex( " [CANDIDATE] ", ( void* )mapped_va, STUB_SCAN_LENGTH );
 			helper::print_hex( "      [STUB] ", ( void* )stub, STUB_SCAN_LENGTH );
 
@@ -332,6 +332,7 @@ namespace syscall
 
 		LOG( "[+] syscall number for %s (0x%X) is set\n", 
 			hook_function_name.data(), syscall_number );
+
 		helper::print_hex( "[+] prepared our syscall handler: ", &syscall_handler, 11 );
 
 		const SYSMODULE_RESULT ntoskrnl =
