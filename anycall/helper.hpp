@@ -250,9 +250,9 @@ namespace helper
 		//
 		const void* module_base =
 			LoadLibraryEx(
-				module_name.data(),				// file name
-				NULL,							// file handle
-				DONT_RESOLVE_DLL_REFERENCES );	// flags
+				module_name.data(),            // file name
+				NULL,                          // file handle
+				DONT_RESOLVE_DLL_REFERENCES ); // flags
 
 		if ( !module_base )
 		{
@@ -339,7 +339,8 @@ namespace helper
 		}
 
 		pNtQuerySystemInformation NtQuerySystemInformation =
-			( pNtQuerySystemInformation )GetProcAddress( module_handle, "NtQuerySystemInformation" );
+			( pNtQuerySystemInformation )
+				GetProcAddress( module_handle, "NtQuerySystemInformation" );
 
 		if ( !NtQuerySystemInformation )
 		{
