@@ -136,7 +136,7 @@ AcMapPhysicalMemoryForUser
 
 	if ( !NT_SUCCESS( ntStatus ) )
 	{
-		AC_KDPRINT( "ERROR: ZwMapViewOfSection Failed (0x%lX)\n", ntStatus );
+		AC_KDPRINT( "ERROR: ZwMapViewOfSection Failed\n" );
 		AC_KDPRINT( " ---> NTSTATUS: 0x%lX\n", ntStatus );
 
 		ZwClose( SectionHandle );
