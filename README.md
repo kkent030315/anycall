@@ -32,6 +32,10 @@ Read: https://www.godeye.club/2021/05/14/001-x64-windows-kernel-code-execution-v
 
 This project is to demonstrate how drivers that allowing user-process to map physical memory for user, and how it is critical vulnerable.
 
+Related CVEs:
+
+- [CVE-2020-12446](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-12446)
+
 ## License
 
 MIT
