@@ -41,7 +41,7 @@
 #endif
 
 #define LOG_ERROR() \
-	logger::log("[!] failed at %s:%d, (0x%lX)\n", __FILE__, __LINE__, GetLastError())
+	LOG("[!] failed at %s:%d, (0x%lX)\n", __FILE__, __LINE__, GetLastError())
 
 namespace logger
 {
