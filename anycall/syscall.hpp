@@ -34,8 +34,8 @@
 #include "hook.hpp"
 #include "nt.hpp"
 
-#define KB(x) ((size_t) (x) << 10)
-#define MB(x) ((size_t) (x) << 20)
+#define KB(x) ( ( size_t ) ( x ) << 10 )
+#define MB(x) ( ( size_t ) ( x ) << 20 )
 
 //
 // length of stub to scan
@@ -180,7 +180,8 @@ namespace syscall
 		return false;
 	}
 
-	bool scan_for_range( uint64_t start_pa, uint64_t end_pa )
+	bool scan_for_range( 
+		const uint64_t start_pa, const uint64_t end_pa )
 	{
 		LOG( "[+] scan for range [0x%llX -> 0x%llX]\n",
 			start_pa, end_pa );
@@ -190,11 +191,9 @@ namespace syscall
 		//
 		// lazy lambda definition
 		//
-		const auto iterator = [ & ]( uint64_t base, size_t size = NULL )
+		const auto iterator = [ & ]( 
+			const uint64_t base, const size_t size = MB( 2 ) )
 		{
-			if ( !size )
-				size = MB( 2 );
-
 			// just for logging
 			uint32_t counter = 0;
 
@@ -401,7 +400,7 @@ namespace syscall
 		//
 		// scan for every single physical memory ranges
 		//
-		for ( auto pa_range : pa_range_list )
+		for ( const auto& pa_range : pa_range_list )
 		{
 			if ( scan_for_range( pa_range.start_pa, pa_range.end_pa ) )
 			{
