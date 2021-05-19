@@ -307,7 +307,7 @@ namespace syscall
 		//
 		// find syscall number from image
 		//
-		uint16_t syscall_number = 
+		const uint16_t syscall_number = 
 			helper::find_syscall_number( 
 				hook_function_module_name, hook_function_name );
 
@@ -320,9 +320,9 @@ namespace syscall
 		}
 
 		if ( !hook::copy_memory( 
-			( void* )( ( uint64_t )syscall_handler + 0x4 ), // our syscall number offset is 0x4
-			&syscall_number,                                // the syscall number
-			sizeof( uint16_t ) ) )                          // size must be 0x2
+			( void* )( ( uint64_t )syscall_handler + 0x4 ),      // our syscall number offset is 0x4
+			( void* )const_cast< uint16_t* >( &syscall_number ), // the syscall number
+			sizeof( uint16_t ) ) )                               // size must be 0x2
 		{
 			LOG( "[!] failed to set syscall number\n" );
 			LOG_ERROR();
