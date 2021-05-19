@@ -34,8 +34,8 @@
 #include "hook.hpp"
 #include "nt.hpp"
 
-#define KB(x) ( ( size_t ) ( x ) << 10 )
-#define MB(x) ( ( size_t ) ( x ) << 20 )
+#define KB( x ) ( ( size_t ) ( x ) << 10 )
+#define MB( x ) ( ( size_t ) ( x ) << 20 )
 
 //
 // length of stub to scan
