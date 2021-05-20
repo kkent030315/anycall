@@ -38,6 +38,11 @@ typedef struct _PHYSICAL_MEMORY_RANGE {
     LARGE_INTEGER NumberOfBytes;
 } PHYSICAL_MEMORY_RANGE, * PPHYSICAL_MEMORY_RANGE;
 
+#ifndef _NTDEF_
+typedef _Return_type_success_( return >= 0 ) LONG NTSTATUS;
+typedef NTSTATUS* PNTSTATUS;
+#endif
+
 #ifndef NT_SUCCESS
 #define NT_SUCCESS(Status) ((NTSTATUS)(Status) >= 0)
 #endif
@@ -90,7 +95,7 @@ typedef struct _SYSTEM_MODULE_INFORMATION_ENTRY
     char ImageName[ 256 ];
 } SYSTEM_MODULE_INFORMATION_ENTRY, * PSYSTEM_MODULE_INFORMATION_ENTRY;
 
-typedef enum _SYSTEM_INFORMATION_CLASS
+typedef enum _SYSTEM_INFORMATION_CLASS_EX
 {
     SystemBasicInformation = 0,
     SystemProcessorInformation = 1,
@@ -175,7 +180,7 @@ typedef enum _SYSTEM_INFORMATION_CLASS
     SystemMemoryListInformation = 80,
     SystemFileCacheInformationEx = 81,
     MaxSystemInfoClass = 82
-} SYSTEM_INFORMATION_CLASS;
+} SYSTEM_INFORMATION_CLASS_EX;
 
 typedef struct _SYSTEM_MODULE_INFORMATION
 {
@@ -184,8 +189,8 @@ typedef struct _SYSTEM_MODULE_INFORMATION
 } SYSTEM_MODULE_INFORMATION, * PSYSTEM_MODULE_INFORMATION;
 
 typedef NTSTATUS( WINAPI* pNtQuerySystemInformation )(
-    IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
-    OUT PVOID                   SystemInformation,
-    IN ULONG                    SystemInformationLength,
-    OUT PULONG                  ReturnLength
+    IN SYSTEM_INFORMATION_CLASS_EX SystemInformationClass,
+    OUT PVOID                      SystemInformation,
+    IN ULONG                       SystemInformationLength,
+    OUT PULONG                     ReturnLength
     );
