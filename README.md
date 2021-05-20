@@ -36,6 +36,45 @@ Related CVEs:
 
 - [CVE-2020-12446](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-12446)
 
+## libanycall
+
+`libanycall` is the powerful c++ static-library that makes exploit execution of ``anycall`` more easily.
+
+### Usage
+
+1. link it (e.g, `#pragma comment( lib, "libanycall64" )`)
+2. include (e.g, `#include "libanycall.h"`)
+
+For example:
+
+```cpp
+#include <windows.h>
+#include <iostream>
+
+#include "libanycall.h"
+
+#pragma comment( lib, "libanycall64" )
+
+using PsGetCurrentProcessId = HANDLE( __fastcall* )( void );
+
+int main( const int argc, const char** argv, const char** envp )
+{
+    if ( !libanycall::init( "ntdll.dll", "NtTraceControl" ) )
+    {
+        printf( "[!] failed to init libanycall\n" );
+        return EXIT_FAILURE;
+    }
+    
+    // invoke NT kernel APIs from usermode
+    const uint32_t process_id =
+        ( uint32_t )ANYCALL_INVOKE( PsGetCurrentProcessId );
+
+    printf( "PsGetCurrentProcessId returns %d\n", process_id );
+
+    return EXIT_SUCCESS;
+}
+```
+
 ## License
 
 MIT
