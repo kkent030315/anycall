@@ -293,7 +293,7 @@ namespace syscall
 		std::vector< PHYSICAL_ADDRESS_RANGE > pa_range_list;
 		helper::query_physical_memory_ranges( pa_range_list );
 
-		if ( pa_range_list.size() <= 0 )
+		if ( !pa_range_list.size() )
 		{
 			LOG( "[!] failed to fetch physical memory ranges\n" );
 			LOG_ERROR();
