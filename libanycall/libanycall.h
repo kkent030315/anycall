@@ -66,4 +66,15 @@ namespace libanycall
 		return invoke_result;
 	}
 
+	template < class FnType, class ... Args >
+	std::invoke_result_t< FnType, Args... > invoke_void(
+		void* detour, Args ... augments )
+	{
+		libanycall::hook( get_procedure(), detour, true );
+
+		reinterpret_cast< FnType >( syscall_handler )( augments ... );
+
+		libanycall::unhook( get_procedure(), true );
+	}
+
 } // namespace libanycall
