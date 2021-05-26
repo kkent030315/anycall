@@ -34,7 +34,7 @@
 #define ANYCALL_INVOKE( function_name, ... ) \
 			libanycall::invoke< function_name >( \
 				( void* )libanycall::find_ntoskrnl_export( \
-					#function_name ) );
+					#function_name ), __VA_ARGS__ );
 
 namespace libanycall
 {
