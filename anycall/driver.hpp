@@ -81,8 +81,7 @@ namespace driver
 	// size is not actually required to process on driver side
 	//
 	void unmap_physical_memory( 
-		uint64_t virtual_address, size_t size,
-		const bool should_erase = true )
+		uint64_t virtual_address, size_t size )
 	{
 		uint64_t fake = 0; // unused
 
