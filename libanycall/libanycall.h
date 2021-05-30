@@ -52,6 +52,9 @@ namespace libanycall
 	extern bool hook( void* source, void* detour, bool writable = false );
 	extern bool unhook( void* source, bool writable = false );
 
+	extern uint64_t map_physical_memory( uint64_t physical_address, size_t size );
+	extern void unmap_physical_memory( uint64_t virtual_address, size_t size );
+
 	template < class FnType, class ... Args >
 	std::invoke_result_t< FnType, Args... > invoke(
 		void* detour, Args ... augments )

@@ -31,6 +31,7 @@
 #include "../anycall/helper.hpp"
 #include "../anycall/hook.hpp"
 #include "../anycall/syscall.hpp"
+#include "../anycall/driver.hpp"
 
 #define ANYCALL_API_IMPL 
 
@@ -65,4 +66,16 @@ ANYCALL_API_IMPL uint64_t libanycall::find_ntoskrnl_export(
 	const bool as_rva )
 {
 	return helper::find_ntoskrnl_export( export_name, as_rva );
+}
+
+ANYCALL_API_IMPL uint64_t libanycall::map_physical_memory(
+    uint64_t physical_address, size_t size )
+{
+    return driver::map_physical_memory( physical_address, size );
+}
+
+ANYCALL_API_IMPL void libanycall::unmap_physical_memory( 
+    uint64_t virtual_address, size_t size )
+{
+    driver::unmap_physical_memory( virtual_address, size );
 }
