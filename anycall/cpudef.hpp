@@ -28,8 +28,20 @@
 #include <windows.h>
 #include <cstdint>
 
+#ifndef CLZLL64
+#define CLZLL64( x ) ( int )__lzcnt64( x )
+#endif
+
+#define LOG2( x ) \
+    ( ( unsigned ) \
+        ( 8 * sizeof ( unsigned long long ) - CLZLL64( ( x ) ) - 1 ) )
+
 #ifndef PAGE_SIZE
-#define PAGE_SIZE (1024 * 4)
+#define PAGE_SIZE ( 1024 * 4 )
+#endif
+
+#ifndef PAGE_SHIFT
+#define PAGE_SHIFT LOG2( PAGE_SIZE )
 #endif
 
 //
@@ -44,7 +56,7 @@ typedef union _VIRTUAL_ADDRESS
         uint64_t offset : 12;
         uint64_t pt_index : 9;
         uint64_t pd_index : 9;
-        uint64_t pdpt_index : 9;
+        uint64_t pdp_index : 9;
         uint64_t pml4_index : 9;
         uint64_t reserved : 16;
     };
