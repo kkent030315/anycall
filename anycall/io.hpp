@@ -56,7 +56,7 @@ namespace io
 
         if ( !device_handle || device_handle == INVALID_HANDLE_VALUE )
         {
-            LOG( "[!] failed to obtain device handle\n" );
+            LOG( "[!] \033[0;101;30mfailed to obtain device handle\033[0m\n" );
             LOG_ERROR();
             return false;
         }
@@ -79,7 +79,7 @@ namespace io
         if ( !device_handle ||
               device_handle == INVALID_HANDLE_VALUE )
         {
-            LOG( "[!] invalid device handle\n" );
+            LOG( "[!] \033[0;101;30minvalid device handle\033[0m\n" );
             return false;
         }
 
@@ -102,7 +102,7 @@ namespace io
         {
             if ( !bytes_returned )
             {
-                LOG( "[!] failed to complete ioctl request\n" );
+                LOG( "[!] \033[0;101;30mfailed to complete ioctl request\033[0m\n" );
                 LOG_ERROR();
                 return false;
             }

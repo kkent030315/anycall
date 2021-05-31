@@ -44,6 +44,9 @@
     <ClInclude Include="hook.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="console.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="syscall.asm">

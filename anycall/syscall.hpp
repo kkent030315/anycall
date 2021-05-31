@@ -145,10 +145,10 @@ namespace syscall
 		const bool is_syscall_ok = 
 			pid_from_hooked_syscall == GetCurrentProcessId();
 
-		LOG( " ---> [validation] PsGetCurrentProcessId:%d == %d:GetCurrentProcessId -> %s\n",
+		LOG( "[?] PsGetCurrentProcessId:\033[0;105;30m%d\033[0m == \033[0;105;30m%d\033[0m:GetCurrentProcessId -> %s\n",
 			pid_from_hooked_syscall,
 			GetCurrentProcessId(),
-			is_syscall_ok ? "OK" : "INVALID" );
+			is_syscall_ok ? "\033[0;102;30mOK\033[0m" : "\033[0;101;30mINVALID\033[0m" );
 
 		return is_syscall_ok;
 	}
@@ -167,10 +167,6 @@ namespace syscall
 			//
 			syscall::function = reinterpret_cast< void* >( mapped_va );
 
-			LOG( " ---> [compare]\n" );
-			helper::print_hex( " [CANDIDATE] ", ( void* )mapped_va, STUB_SCAN_LENGTH );
-			helper::print_hex( "      [STUB] ", ( void* )stub, STUB_SCAN_LENGTH );
-
 			//
 			// validate by try hook and call
 			//
@@ -183,7 +179,7 @@ namespace syscall
 	bool scan_for_range( 
 		const uint64_t start_pa, const uint64_t end_pa )
 	{
-		LOG( "[+] scan for range [0x%llX -> 0x%llX]\n",
+		LOG( "[+] scanning for range [\033[0;103;30m0x%llX -> 0x%llX\033[0m]\n",
 			start_pa, end_pa );
 
 		const auto pa_size = start_pa + end_pa;
@@ -208,7 +204,7 @@ namespace syscall
 				//
 				if ( probe_for_hook( current_page ) )
 				{
-					LOG( "[+] hook function found in range [0x%llX -> 0x%llX] and page %d\n",
+					LOG( "[+] stub found in range [\033[0;103;30m0x%llX -> 0x%llX\033[0m] and page \033[0;103;30m%d\033[0m\n",
 						start_pa, end_pa, counter );
 					return true;
 				}
@@ -224,7 +220,7 @@ namespace syscall
 
 			if ( !mapped_va )
 			{
-				LOG( "[!] failed to map physical memory\n" );
+				LOG( "[!] \033[0;101;30mfailed to map physical memory\033[0m\n" );
 				return false;
 			}
 
@@ -249,7 +245,7 @@ namespace syscall
 
 			if ( !mapped_va )
 			{
-				LOG( "[!] failed to map physical memory\n" );
+				LOG( "[!] \033[0;101;30mfailed to map physical memory\033[0m\n" );
 				continue;
 			}
 
@@ -265,7 +261,7 @@ namespace syscall
 
 		if ( !mapped_va )
 		{
-			LOG( "[!] failed to map physical memory\n" );
+			LOG( "[!] \033[0;101;30mfailed to map physical memory\033[0m\n" );
 			return false;
 		}
 
@@ -295,7 +291,7 @@ namespace syscall
 
 		if ( !pa_range_list.size() )
 		{
-			LOG( "[!] failed to fetch physical memory ranges\n" );
+			LOG( "[!] \033[0;101;30mfailed to fetch physical memory ranges\033[0m\n" );
 			LOG_ERROR();
 
 			return false;
@@ -312,7 +308,7 @@ namespace syscall
 
 		if ( !syscall_number )
 		{
-			LOG( "[!] failed to find syscall number\n" );
+			LOG( "[!] \033[0;101;30mfailed to find syscall number\033[0m\n" );
 			LOG_ERROR();
 
 			return false;
@@ -323,7 +319,7 @@ namespace syscall
 			( void* )const_cast< uint16_t* >( &syscall_number ), // the syscall number
 			sizeof( uint16_t ) ) )                               // size must be 0x2
 		{
-			LOG( "[!] failed to set syscall number\n" );
+			LOG( "[!] \033[0;101;30mfailed to set syscall number\033[0m\n" );
 			LOG_ERROR();
 
 			return false;
@@ -332,7 +328,9 @@ namespace syscall
 		LOG( "[+] syscall number for %s (0x%X) is set\n", 
 			hook_function_name.data(), syscall_number );
 
-		helper::print_hex( "[+] prepared our syscall handler: ", &syscall_handler, 11 );
+		helper::print_hex( 
+			"[+] prepared our syscall handler: \033[0;100;30m", "\033[0m", 
+			&syscall_handler, 11 );
 
 		const SYSMODULE_RESULT ntoskrnl =
 			helper::find_sysmodule_address( "ntoskrnl.exe" );
@@ -342,7 +340,7 @@ namespace syscall
 
 		if ( !ntoskrnl.base_address )
 		{
-			LOG( "[!] failed to locate ntoskrnl.exe\n" );
+			LOG( "[!] \033[0;101;30mfailed to locate ntoskrnl.exe\033[0m\n" );
 			return false;
 		}
 
@@ -356,7 +354,7 @@ namespace syscall
 
 		if ( !our_ntoskrnl )
 		{
-			LOG( "[!] failed to map ntoskrnl.exe into our process\n" );
+			LOG( "[!] \033[0;101;30mfailed to map ntoskrnl.exe into our process\033[0m\n" );
 			LOG_ERROR();
 
 			return false;
@@ -373,7 +371,7 @@ namespace syscall
 
 		if ( !hook_function_rva )
 		{
-			LOG( "[!] failed to locate %s in ntoskrnl.exe\n",
+			LOG( "[!] \033[0;101;30mfailed to locate %s in ntoskrnl.exe\033[0m\n",
 				hook_function_name.data() );
 
 			return false;
@@ -395,7 +393,9 @@ namespace syscall
 
 		FreeLibrary( ( HMODULE )our_ntoskrnl );
 
-		helper::print_hex( "[+] function stub: ", (void*)stub, STUB_SCAN_LENGTH );
+		helper::print_hex( 
+			"[+] function stub: \033[0;100;30m", "\033[0m", 
+			( void* )stub, STUB_SCAN_LENGTH);
 
 		//
 		// scan for every single physical memory ranges
@@ -412,7 +412,7 @@ namespace syscall
 						( void* )helper::find_ntoskrnl_export( "MmGetPhysicalAddress" ),
 						syscall::function );
 
-				LOG( "[+] %s found at VA:0x%llX PA:0x%llX\n",
+				LOG( "[+] %s found at \033[0;103;30m0x%llX\033[0m\n",
 					hook_function_name.data(),
 					syscall::function, physical_address.QuadPart );
 
@@ -423,7 +423,7 @@ namespace syscall
 
 		if ( !syscall::found )
 		{
-			LOG( "[!] syscall was not found\n" );
+			LOG( "[!] \033[0;101;30msyscall was not found\033[0m\n" );
 			return false;
 		}
 

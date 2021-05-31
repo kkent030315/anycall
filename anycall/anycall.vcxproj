@@ -145,6 +145,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="console.hpp" />
     <ClInclude Include="cpudef.hpp" />
     <ClInclude Include="driver.hpp" />
     <ClInclude Include="helper.hpp" />

@@ -29,12 +29,15 @@
 #include "logger.hpp"
 #include "io.hpp"
 #include "syscall.hpp"
+#include "console.hpp"
 
 #define DEFAULT_MODULE_NAME "ntdll.dll"
 #define DEFAULT_FUNCTION_NAME "NtTraceControl"
 
 int main( const int argc, const char** argv, const char** envp )
 {
+    console::enable_ansi_escape();
+
     SetConsoleTitle( TEXT( "anycall by Kento Oki at www.godeye.club" ) );
     LOG( "\n[=] \"anycall\" by Kento Oki at www.godeye.club\n" );
 
@@ -57,7 +60,7 @@ int main( const int argc, const char** argv, const char** envp )
 
     if ( !io::init() )
     {
-        LOG( "[!] failed to init io\n" );
+        LOG( "[!] \033[0;101;30mfailed to init io\033[0m\n" );
         std::cin.ignore();
         return EXIT_FAILURE;
     }
@@ -69,7 +72,7 @@ int main( const int argc, const char** argv, const char** envp )
         use_default ? DEFAULT_MODULE_NAME : module_name,        // module name
         use_default ? DEFAULT_FUNCTION_NAME : function_name ) ) // function name
     {
-        LOG( "[!] failed to setup syscall-hook\n" );
+        LOG( "[!] \033[0;101;30mfailed to setup syscall-hook\033[0m\n" );
         std::cin.ignore();
         return EXIT_FAILURE;
     }

@@ -75,7 +75,10 @@ namespace helper
 	// print hex
 	// for example: 0x00 0x00 0x00 0x00 0x00 ... 
 	//
-	void print_hex( const std::string_view prefix, void* buffer, size_t length )
+	void print_hex( 
+		const std::string_view prefix, 
+		const std::string_view suffix,
+		void* buffer, size_t length )
 	{
 		if ( !prefix.empty() )
 			LOG( "%s", prefix.data() );
@@ -83,11 +86,11 @@ namespace helper
 		for ( auto i = 0; i < length; i++ )
 		{
 			// hello terrible expression
-			LOG( "0x%02X ", 
+			LOG( i == length - 1 ? "0x%02X" : "0x%02X ",
 				*( uint8_t* )( ( uint64_t )buffer + ( 0x1 * i ) ) & 0x000000FF );
 		}
 
-		LOG( "\n" );
+		LOG( "%s\n", suffix.data() );
 	}
 
 	//
@@ -160,7 +163,7 @@ namespace helper
 
 		if ( status != ERROR_SUCCESS )
 		{
-			LOG( "[!] failed to query value size\n" );
+			LOG( "[!] \033[0;101;30mfailed to query value size\033[0m\n" );
 			LOG_ERROR();
 
 			return false;
@@ -174,7 +177,7 @@ namespace helper
 
 		if ( !buffer )
 		{
-			LOG( "[!] failed to allocate buffer\n" );
+			LOG( "[!] \033[0;101;30mfailed to allocate buffer\033[0m\n" );
 			LOG_ERROR();
 
 			return false;
@@ -192,7 +195,7 @@ namespace helper
 
 		if ( status != ERROR_SUCCESS )
 		{
-			LOG( "[!] failed to query value\n" );
+			LOG( "[!] \033[0;101;30mfailed to query value\033[0m\n" );
 			LOG_ERROR();
 
 			VirtualFree( buffer, NULL, MEM_RELEASE );
@@ -238,7 +241,7 @@ namespace helper
 
 		if ( !module_base )
 		{
-			LOG( "[!] failed to obtain module handle of %s\n", module_name.data() );
+			LOG( "[!] \033[0;101;30mfailed to obtain module handle of %s\033[0m\n", module_name.data() );
 			LOG_ERROR();
 
 			return NULL;
@@ -252,7 +255,7 @@ namespace helper
 
 		if ( pdos_header->e_magic != IMAGE_DOS_SIGNATURE )
 		{
-			LOG( "[!] invalid dos signature: 0x%lX \n", pdos_header->e_magic );
+			LOG( "[!] \033[0;101;30minvalid dos signature: 0x%lX\033[0m\n", pdos_header->e_magic );
 			FreeLibrary( ( HMODULE )module_base );
 			return NULL;
 		}
@@ -262,7 +265,7 @@ namespace helper
 
 		if ( pnt_headers->Signature != IMAGE_NT_SIGNATURE )
 		{
-			LOG( "[!] invalid nt headers signature: 0x%lX \n", pnt_headers->Signature );
+			LOG( "[!] \033[0;101;30minvalid nt headers signature: 0x%lX\033[0m\n", pnt_headers->Signature );
 			FreeLibrary( ( HMODULE )module_base );
 			return NULL;
 		}
@@ -272,7 +275,7 @@ namespace helper
 
 		if ( !export_directory )
 		{
-			LOG( "[!] invalid nt headers\n", pnt_headers->Signature );
+			LOG( "[!] \033[0;101;30minvalid nt headers\033[0m\n", pnt_headers->Signature );
 			FreeLibrary( ( HMODULE )module_base );
 			return NULL;
 		}
@@ -316,7 +319,7 @@ namespace helper
 
 		if ( !CHECK_HANDLE( module_handle ) )
 		{
-			LOG( "[!] failed to obtain ntdll.dll handle. (0x%lX)\n", module_handle );
+			LOG( "[!] \033[0;101;30mfailed to obtain ntdll.dll handle. (0x%lX)\033[0m\n", module_handle );
 			return {};
 		}
 
@@ -326,7 +329,7 @@ namespace helper
 
 		if ( !NtQuerySystemInformation )
 		{
-			LOG( "[!] failed to locate NtQuerySystemInformation. (0x%lX)\n", GetLastError() );
+			LOG( "[!] \033[0;101;30mfailed to locate NtQuerySystemInformation. (0x%lX)\033[0m\n", GetLastError() );
 			return {};
 		}
 
@@ -341,7 +344,7 @@ namespace helper
 
 			if ( !buffer )
 			{
-				LOG( "[!] failed to allocate buffer for query (0). (0x%lX)\n", GetLastError() );
+				LOG( "[!] \033[0;101;30mfailed to allocate buffer for query (0). (0x%lX)\033[0m\n", GetLastError() );
 				return {};
 			}
 
@@ -354,7 +357,7 @@ namespace helper
 
 			if ( !NT_SUCCESS( status ) && status != STATUS_INFO_LENGTH_MISMATCH )
 			{
-				LOG( "[!] failed to query system module information. NTSTATUS: 0x%llX\n", status );
+				LOG( "[!] \033[0;101;30mfailed to query system module information. NTSTATUS: 0x%llX\033[0m\n", status );
 				free( buffer );
 				return {};
 			}
@@ -369,7 +372,7 @@ namespace helper
 
 		if ( !buffer )
 		{
-			LOG( "[!] failed to allocate buffer for query (1). (0x%lX)\n", GetLastError() );
+			LOG( "[!] \033[0;101;30mfailed to allocate buffer for query (1). (0x%lX)\033[0m\n", GetLastError() );
 			return {};
 		}
 
@@ -410,7 +413,7 @@ namespace helper
 
 			if ( !ntoskrnl.base_address )
 			{
-				LOG( "[!] failed to locate ntoskrnl.exe\n" );
+				LOG( "[!] \033[0;101;30mfailed to locate ntoskrnl.exe\033[0m\n" );
 				LOG_ERROR();
 
 				return NULL;
