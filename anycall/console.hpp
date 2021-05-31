@@ -47,13 +47,13 @@ namespace console
         if ( std_handle == INVALID_HANDLE_VALUE )
             return false;
 
-        if ( !GetConsoleMode( std_handle, &console_mode ) )
+        if ( GetConsoleMode( std_handle, &console_mode ) == FALSE )
             return false;
 
         // enable ANSI escape codes
         console_mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
-        if ( !SetConsoleMode( std_handle, console_mode ) )
+        if ( SetConsoleMode( std_handle, console_mode ) == FALSE )
             return false;
 
         return true;
