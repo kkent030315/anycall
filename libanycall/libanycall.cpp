@@ -61,10 +61,15 @@ ANYCALL_API_IMPL bool libanycall::unhook(
 	return hook::unhook( source, writable );
 }
 
-ANYCALL_API_IMPL uint64_t libanycall::find_sysmodule(
+ANYCALL_API_IMPL libanycall::SYSMODULE_RESULT libanycall::find_sysmodule(
     const std::string_view module_name )
 {
-    return helper::find_sysmodule_address( module_name ).base_address;
+    const auto result = 
+        helper::find_sysmodule_address( module_name );
+    
+    return { 
+        result.base_address,
+        result.image_full_path };
 }
 
 ANYCALL_API_IMPL uint64_t libanycall::find_ntoskrnl_export(

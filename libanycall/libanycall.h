@@ -38,13 +38,19 @@
 
 namespace libanycall
 {
+	typedef struct _SYSMODULE_RESULT
+	{
+		uint64_t base_address;			// base address of the module
+		std::string image_full_path;	// full path of the module
+	} SYSMODULE_RESULT, * PSYSMODULE_RESULT;
+
 	extern "C" void* syscall_handler();
 
 	extern bool init(
 		std::string_view module_name,
 		std::string_view function_name );
 
-	extern uint64_t find_sysmodule( const std::string_view module_name );
+	extern SYSMODULE_RESULT find_sysmodule( const std::string_view module_name );
 	extern uint64_t find_ntoskrnl_export(
 		const std::string_view export_name,
 		const bool as_rva = false );
