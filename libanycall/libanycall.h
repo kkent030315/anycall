@@ -44,6 +44,7 @@ namespace libanycall
 		std::string_view module_name,
 		std::string_view function_name );
 
+	extern uint64_t find_sysmodule( const std::string_view module_name );
 	extern uint64_t find_ntoskrnl_export(
 		const std::string_view export_name,
 		const bool as_rva = false );
