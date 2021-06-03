@@ -50,6 +50,9 @@ namespace libanycall
 		std::string_view module_name,
 		std::string_view function_name );
 
+	extern uint64_t find_export(
+		std::string module_name,
+		const std::string_view export_name );
 	extern SYSMODULE_RESULT find_sysmodule( const std::string_view module_name );
 	extern uint64_t find_ntoskrnl_export(
 		const std::string_view export_name,

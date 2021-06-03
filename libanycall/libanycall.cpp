@@ -72,6 +72,13 @@ ANYCALL_API_IMPL libanycall::SYSMODULE_RESULT libanycall::find_sysmodule(
         result.image_full_path };
 }
 
+ANYCALL_API_IMPL uint64_t libanycall::find_export(
+    std::string module_name,
+    const std::string_view export_name )
+{
+    return helper::find_export( module_name, export_name );
+}
+
 ANYCALL_API_IMPL uint64_t libanycall::find_ntoskrnl_export(
 	const std::string_view export_name,
 	const bool as_rva )
