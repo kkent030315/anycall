@@ -59,25 +59,28 @@ namespace libanycall
 	std::invoke_result_t< FnType, Args... > invoke(
 		void* detour, Args ... augments )
 	{
-		libanycall::hook( get_procedure(), detour, true );
+		constexpr auto is_void =
+			std::is_same<
+				std::invoke_result_t< FnType, Args... >, void >{};
 
-		const auto invoke_result =
+		const auto procedure = get_procedure();
+
+		libanycall::hook( procedure, detour, true );
+
+		if constexpr ( is_void )
+		{
 			reinterpret_cast< FnType >( syscall_handler )( augments ... );
+		}
+		else
+		{
+			const auto invoke_result =
+				reinterpret_cast< FnType >( syscall_handler )( augments ... );
 
-		libanycall::unhook( get_procedure(), true );
+			libanycall::unhook( procedure, true );
 
-		return invoke_result;
+			return invoke_result;
+		}
+
+		libanycall::unhook( procedure, true );
 	}
-
-	template < class FnType, class ... Args >
-	std::invoke_result_t< FnType, Args... > invoke_void(
-		void* detour, Args ... augments )
-	{
-		libanycall::hook( get_procedure(), detour, true );
-
-		reinterpret_cast< FnType >( syscall_handler )( augments ... );
-
-		libanycall::unhook( get_procedure(), true );
-	}
-
 } // namespace libanycall

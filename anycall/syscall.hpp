@@ -111,22 +111,44 @@ namespace syscall
 		void* detour, Args ... augments )
 	{
 		//
+		// void function cannot return
+		//
+		constexpr auto is_ret_type_void =
+			std::is_same<
+				std::invoke_result_t< FnType, Args... >, void >{};
+
+		//
 		// inline-hook against desired arbitrary syscall
 		//
 		hook::hook( syscall::function, detour, true );
 
-		//
-		// invoke syscall
-		//
-		const auto invoke_result =
+		if constexpr ( is_ret_type_void )
+		{
+			//
+			// invoke syscall
+			//
 			reinterpret_cast< FnType >( syscall_handler )( augments ... );
+		}
+		else
+		{
+			//
+			// invoke syscall
+			//
+			const auto invoke_result =
+				reinterpret_cast< FnType >( syscall_handler )( augments ... );
+
+			//
+			// unhook immediately
+			//
+			hook::unhook( syscall::function, true );
+
+			return invoke_result;
+		}
 
 		//
 		// unhook immediately
 		//
 		hook::unhook( syscall::function, true );
-
-		return invoke_result;
 	}
 
 	//
