@@ -323,11 +323,11 @@ namespace helper
 			return {};
 		}
 
-		pNtQuerySystemInformation NtQuerySystemInformation =
-			( pNtQuerySystemInformation )
+		PFN_NT_QUERY_SYSTEM_INFORMATION pNtQuerySystemInformation =
+			( PFN_NT_QUERY_SYSTEM_INFORMATION )
 				GetProcAddress( module_handle, "NtQuerySystemInformation" );
 
-		if ( !NtQuerySystemInformation )
+		if ( !pNtQuerySystemInformation )
 		{
 			LOG( "[!] \033[0;101;30mfailed to locate NtQuerySystemInformation. (0x%lX)\033[0m\n", GetLastError() );
 			return {};
@@ -348,7 +348,7 @@ namespace helper
 				return {};
 			}
 
-			status = NtQuerySystemInformation(
+			status = pNtQuerySystemInformation(
 				SystemModuleInformation,
 				buffer,
 				alloc_size,

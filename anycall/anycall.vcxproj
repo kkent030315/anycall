@@ -139,6 +139,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -153,6 +154,7 @@
     <ClInclude Include="io.hpp" />
     <ClInclude Include="logger.hpp" />
     <ClInclude Include="nt.hpp" />
+    <ClInclude Include="smep.hpp" />
     <ClInclude Include="syscall.hpp" />
   </ItemGroup>
   <ItemGroup>

@@ -30,6 +30,7 @@
 #include "io.hpp"
 #include "syscall.hpp"
 #include "console.hpp"
+#include "smep.hpp"
 
 #define DEFAULT_MODULE_NAME "ntdll.dll"
 #define DEFAULT_FUNCTION_NAME "NtTraceControl"
@@ -57,6 +58,13 @@ int main( const int argc, const char** argv, const char** envp )
         LOG( "[:] using defaults: [\"%s\"] [\"%s\"]\n\n",
             DEFAULT_MODULE_NAME, DEFAULT_FUNCTION_NAME );
     }
+
+    const auto is_smep_present = smep::is_smep_enabled();
+
+    LOG( "[~] smep: %s\n", 
+        is_smep_present ? 
+        "\033[0;102;30mpresent\033[0m" : 
+        "\033[0;101;30mnot present\033[0m" );
 
     if ( !io::init() )
     {

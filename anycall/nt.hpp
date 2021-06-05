@@ -179,7 +179,8 @@ typedef enum _SYSTEM_INFORMATION_CLASS_EX
     SystemSuperfetchInformation = 79,
     SystemMemoryListInformation = 80,
     SystemFileCacheInformationEx = 81,
-    MaxSystemInfoClass = 82
+    MaxSystemInfoClass = 82,
+    SystemSpeculationControlInformation = 201
 } SYSTEM_INFORMATION_CLASS_EX;
 
 typedef struct _SYSTEM_MODULE_INFORMATION
@@ -188,9 +189,34 @@ typedef struct _SYSTEM_MODULE_INFORMATION
     SYSTEM_MODULE_INFORMATION_ENTRY Modules[ 1 ];
 } SYSTEM_MODULE_INFORMATION, * PSYSTEM_MODULE_INFORMATION;
 
-typedef NTSTATUS( WINAPI* pNtQuerySystemInformation )(
+typedef NTSTATUS( WINAPI* PFN_NT_QUERY_SYSTEM_INFORMATION )(
     IN SYSTEM_INFORMATION_CLASS_EX SystemInformationClass,
     OUT PVOID                      SystemInformation,
     IN ULONG                       SystemInformationLength,
     OUT PULONG                     ReturnLength
     );
+
+//
+// https://github.com/ionescu007/SpecuCheck/blob/master/specucheck.c#L38
+//
+typedef struct _SYSTEM_SPECULATION_CONTROL_INFORMATION {
+    struct {
+        ULONG BpbEnabled : 1;
+        ULONG BpbDisabledSystemPolicy : 1;
+        ULONG BpbDisabledNoHardwareSupport : 1;
+        ULONG SpecCtrlEnumerated : 1;
+        ULONG SpecCmdEnumerated : 1;
+        ULONG IbrsPresent : 1;
+        ULONG StibpPresent : 1;
+        ULONG SmepPresent : 1;
+        ULONG SpeculativeStoreBypassDisableAvailable : 1;
+        ULONG SpeculativeStoreBypassDisableSupported : 1;
+        ULONG SpeculativeStoreBypassDisabledSystemWide : 1;
+        ULONG SpeculativeStoreBypassDisabledKernel : 1;
+        ULONG SpeculativeStoreBypassDisableRequired : 1;
+        ULONG BpbDisabledKernelToUser : 1;
+        ULONG SpecCtrlRetpolineEnabled : 1;
+        ULONG SpecCtrlImportOptimizationEnabled : 1;
+        ULONG Reserved : 16;
+    } SpeculationControlFlags;
+} SYSTEM_SPECULATION_CONTROL_INFORMATION, * PSYSTEM_SPECULATION_CONTROL_INFORMATION;
