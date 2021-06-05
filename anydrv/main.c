@@ -272,8 +272,6 @@ NTSTATUS DriverInitialize
     return STATUS_SUCCESS;
 }
 
-extern "C" PVOID PsNtosImageBase;
-
 //
 // main entry point of this driver
 //
